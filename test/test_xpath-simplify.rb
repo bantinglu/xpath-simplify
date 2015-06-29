@@ -126,4 +126,9 @@ class XPathTest < Minitest::Test
     assert_equal "//*[contains(@class,'classname')]//*[@id='idname1'] or //*[contains(@class,'classname')]//*[@id='idname2']",
                  XPathSimplify.simplify('.classname (( #idname1 || #idname2 ))')
   end
+
+  def test_advanced
+    assert_equal "//*[contains(@class,'classname1')] or //*[contains(@class,'classname')][12]",
+                 XPathSimplify.simplify('.classname1 || (( .classname -> 12 ))')
+  end
 end

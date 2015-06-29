@@ -18,8 +18,8 @@ class XPathSimplify
       when '))'    then return xp.join('')
       when '->'    then i += 1; xp[i] = "[#{arr[i]}]"
       when '>>'    then i += 1; f_attach = xp[i-1]
-      when '&&'    then if f_text then @f_and = true; return xp.join(''); else i += 1; xp[i] = " and #{convert(arr[i..arr.length], false, false)}"; i+=1; end
-      when '||'    then if f_text then @f_or = true; return xp.join(''); else i += 1; xp[i] = " or #{convert(arr[i..arr.length], false, false)}"; i+=1; end
+      when '&&'    then if f_text then @f_and = true; return xp.join(''); else i += 1; xp[i] = " and #{convert(arr[i..arr.length], false, false)}"; i = bracket_increment(arr, i+1); end
+      when '||'    then if f_text then @f_or = true; return xp.join(''); else i += 1; xp[i] = " or #{convert(arr[i..arr.length], false, false)}"; i = bracket_increment(arr, i+1); end
       when '::'    then if f_text then return xp.join(''); else i+=2; xp[i] = "#{f_attach}[contains(text(),'#{arr[i-1]}#{convert(arr[i..arr.length], f_attach, true)}')]"; i = text_increment(arr,i); end
       else              if f_text then xp[i] = " #{arr[i]}"
         else

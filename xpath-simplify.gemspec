@@ -1,9 +1,9 @@
 Gem::Specification.new do |s|
   s.name        = 'xpath-simplify'
-  s.version     = '0.0.0'
-  s.date        = '2016-06-27'
-  s.summary     = "Hello!"
-  s.description = "A simple hello world gem"
+  s.version     = '0.0.1'
+  s.date        = '2016-06-28'
+  s.summary     = "X-Path Simplifier"
+  s.description = "This gem helps streamline the creation of X-Paths!"
   s.authors     = ["Scott Mackie"]
   s.email       = 'scottmackie@live.ca'
   s.files       = ["lib/xpath-simplify.rb"]
