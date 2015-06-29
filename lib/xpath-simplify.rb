@@ -1,73 +1,179 @@
 class XPathSimplify
   def self.simplify (str)
     arr = str.split(/ /)
-    @f_and = false
-    @f_or = false
-    xp = convert(arr, false, false)
+    xp = assemble(arr)
     return xp
   end
 
-  def self.convert (arr, f_attach, f_text)
-    xp = Array.new
-    i = 0
-    f_attach = "//*" unless f_attach
-    begin
-    while i < arr.length do
-      case arr[i]
-      when '(('    then i += 1; xp[i] = convert(arr[i..arr.length], false, f_text); xp[i] = append_previous(xp, i); i = bracket_increment(arr,i)
-      when '))'    then return xp.join('')
-      when '->'    then i += 1; xp[i] = "[#{arr[i]}]"
-      when '>>'    then i += 1; f_attach = xp[i-1]
-      when '&&'    then if f_text then @f_and = true; return xp.join(''); else i += 1; xp[i] = " and #{convert(arr[i..arr.length], false, false)}"; i = bracket_increment(arr, i+1); end
-      when '||'    then if f_text then @f_or = true; return xp.join(''); else i += 1; xp[i] = " or #{convert(arr[i..arr.length], false, false)}"; i = bracket_increment(arr, i+1); end
-      when '::'    then if f_text then return xp.join(''); else i+=2; xp[i] = "#{f_attach}[contains(text(),'#{arr[i-1]}#{convert(arr[i..arr.length], f_attach, true)}')]"; i = text_increment(arr,i); end
-      else              if f_text then xp[i] = " #{arr[i]}"
+  def self.assemble(arr)
+    return "//*[contains(text(),'#{arr.join(' ')}')]" if check_only_text(arr)
+    arr.each_with_index do |a,i|
+      case a
+      when '((', '))', '->', '>>', '&&', '||', '::'                         then next
+      when /^#.+/                                                           then arr[i] = "//*[@id='#{arr[i][1..-1]}']";
+      when /^\..+/                                                          then arr[i] = "//*[contains(@class,'#{arr[i][1..-1]}')]";
+      when /\/[^\/].+/, /^http.*/, /^mailto.*/                              then arr[i] = "//*[contains(@href,'#{arr[i]}')]";
+      else                                                                       next
+      end
+    end
+    arr = combine_words(arr)
+    arr.each_with_index do |a,i|
+      case a
+      when 'li', 'ul', 'a', 'span', 'button', 'input', 'label', 'textarea'  then arr[i] = "//#{arr[i]}";
+      else                                                                       next
+      end
+    end
+    puts arr.to_s
+    arr = evaluate_array(arr)
+    puts arr.to_s
+    arr = expand_brackets(arr)
+    puts arr.to_s
+    puts '______'
+    return arr.join('')
+  end
+
+  def self.check_only_text(arr)
+    arr.each do |a|
+      case a
+      when '((', '))', '->', '>>', '&&', '||', '::'                       then return false
+      else                                                                     next
+      end
+    end
+    case arr[0]
+    when '((', '))', '->', '>>', '&&', '||', '::', /^#.+/, /^\..+/        then return false
+    when 'li', 'ul', 'a', 'span', 'button', 'input', 'label', 'textarea'  then return false
+    when /\/[^\/].+/, /^http.*/, /^mailto.*/                              then return false
+    else                                                                  puts 'no match';return true
+    end
+  end
+
+  def self.combine_words(arr)
+    f_text = -1
+    arr.each_with_index do |a,i|
+      case a
+      when '((', '))', '->', '>>', '&&', '||'                               then next
+      when /^\/\/\*.+/                                                      then next
+      when '::'
+        if f_text != -1
+          arr[f_text] = arr[f_text][0..-2].to_s + "')]"
+          f_text = -1
+          arr[i] = nil
         else
-          case arr[i]
-          when /^#.+/                                                           then xp[i] = "#{f_attach}[@id='#{arr[i][1..-1]}']";
-          when /^\..+/                                                          then xp[i] = "#{f_attach}[contains(@class,'#{arr[i][1..-1]}')]";
-          when 'li', 'ul', 'a', 'span', 'button', 'input', 'label', 'textarea'  then xp[i] = "//#{arr[i]}"
-          when /^\/.+/, /^http.*/, /^mailto.*/                                  then xp[i] = "#{f_attach}[contains(@href,'#{arr[i]}')]";
-          else i+=1;                                                                 xp[i] = "#{f_attach}[contains(text(),'#{arr[i-1]}#{convert(arr[i..arr.length], f_attach, true)}')]"; i = text_increment(arr,i); end
+          f_text = i
+          arr[i] = "//*[contains(text(),'"
+        end
+      else
+        if f_text != -1
+          arr[f_text] = arr[f_text].to_s + arr[i].to_s + ' '
+          arr[i] = nil
+        else
+          next
         end
       end
-      if    @f_and then @f_and = false
-      elsif @f_or  then @f_or = false
-      else  i += 1 end
     end
-    rescue then return xp.join('')
-    end
-    return xp.join('')
+    if f_text != -1 then arr[f_text] = arr[f_text][0..-2].to_s + "')]"; end;
+    return arr.compact
   end
 
-  def self.text_increment(arr, i)
-    while i < arr.length do
-      if arr[i] === '::' || arr[i] === '&&' || arr[i] === '||' || arr[i] === '((' || arr[i] === '))' || arr[i] === '->' || arr[i] === '>>'  then return i
-      else i+=1 end
+  def self.expand_brackets(arr)
+    newarr = Array.new
+    arr = arr.compact
+    arr.each_with_index do |a,i|
+      case a
+      when /.+ and \/\/.+/
+        sub = arr[i]
+        arr[i] = sub.gsub(' and //'," and #{arr[i-1]}//")
+        arr[i] = "#{arr[i-1]}#{arr[i]}"
+        arr[i-1] = nil
+      when /.+ or \/\/.+/
+        sub = arr[i]
+        arr[i] = sub.gsub(' or //'," or #{arr[i-1]}//")
+        arr[i] = "#{arr[i-1]}#{arr[i]}"
+        arr[i-1] = nil
+      else
+      end
     end
-    return arr.length
+    return arr
   end
 
-  def self.bracket_increment(arr, i)
-    counter = 0
-    while i < arr.length do
-      if arr[i] === '((' then counter += 1
-      elsif arr[i] === '))' then if counter == 0 then return i; else counter -=1; end
-      else i+=1; end
+  def self.evaluate_array(arr)
+    arr = arr.compact
+    arr.each_with_index do |a,i|
+      puts 'AT'+ i.to_s + 'AND THIS' + arr.to_s
+      case a
+      when nil     then next
+      when '(('
+        targ = 0
+        arr[(i+1)..arr.length].each_with_index do |b,j|
+          if b == '))'
+            targ = j
+            break
+          end
+        end
+        temp = evaluate_array(arr[i+1..i+targ])
+        for j in (0...temp.length) do
+          arr[i+j] = temp[j];
+        end
+        for j in (i+temp.length)..(i+targ) do
+          arr[j] = nil
+        end
+      when '))'    then arr[i]=nil; return arr
+      else              next
+      end
     end
-    return arr.length
+
+    arr = arr.compact
+    arr.each_with_index do |a,i|
+      case a
+      when '->'    then arr = evaluate_index(arr,i)
+      else         next
+      end
+    end
+
+    arr = arr.compact
+    arr.each_with_index do |a,i|
+      case a
+      when '>>'    then arr = evaluate_attach(arr,i)
+      else         next
+      end
+    end
+
+    arr = arr.compact
+    arr.each_with_index do |a,i|
+      case a
+      when '&&'    then arr = evaluate_and(arr,i)
+      when '||'    then arr = evaluate_or(arr,i)
+      else         next
+      end
+    end
+
+    return arr
   end
 
-  def self.append_previous(xp, i)
-    if i>1
-      begin
-      xp[i] = xp[i].gsub(' and //'," and #{xp[i-2]}//")
-      xp[i] = xp[i].gsub(' or //'," or #{xp[i-2]}//")
-      rescue
-        # Do Nothing
-     end
-    end
-    return xp[i]
+  def self.evaluate_index(arr,i)
+    arr[i] = "[#{arr[i+1]}]"
+    arr[i+1] = nil
+    return arr
+  end
+
+  def self.evaluate_attach(arr,i)
+    arr[i] = "#{arr[i-1]}#{arr[i+1][3..-1]}"
+    arr[i-1] = nil
+    arr[i+1] = nil
+    return arr
+  end
+
+  def self.evaluate_and(arr,i)
+    arr[i] = "#{arr[i-1]} and //*#{arr[i+1][3..-1]}"
+    arr[i-1] = nil
+    arr[i+1] = nil
+    return arr
+  end
+
+  def self.evaluate_or(arr,i)
+    arr[i] = "#{arr[i-1]} or //*#{arr[i+1][3..-1]}"
+    arr[i-1] = nil
+    arr[i+1] = nil
+    return arr
   end
 end
-
