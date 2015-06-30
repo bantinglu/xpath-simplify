@@ -23,12 +23,7 @@ class XPathSimplify
       else                                                                       next
       end
     end
-    puts arr.to_s
-    arr = evaluate_array(arr)
-    puts arr.to_s
-    arr = expand_or(arr)
-    puts arr.to_s
-    puts '______'
+    arr = evaluate_array(arr, true)
     return arr.join('')
   end
 
@@ -43,7 +38,7 @@ class XPathSimplify
     when '((', '))', '->', '>>', '&&', '||', '::', /^#.+/, /^\..+/        then return false
     when 'li', 'ul', 'a', 'span', 'button', 'input', 'label', 'textarea'  then return false
     when /\/[^\/].+/, /^http.*/, /^mailto.*/                              then return false
-    else                                                                  puts 'no match';return true
+    else                                                                       return true
     end
   end
 
@@ -75,64 +70,29 @@ class XPathSimplify
     return arr.compact
   end
 
-  def self.expand_and(arr)
-    counter = Array.new
-    arr = arr.compact
-    newarr = Array.new
-    arr.each_with_index do |a,i|
-      newarr[i] = a.to_s.split(' and //')
-      newarr[i][1] = "//#{newarr[i][1]}" if newarr[i].size > 1
-      counter.push(i) if newarr[i].size > 1
-    end
-    for i in 0..newarr.size-2 do
-      newarr[0] = (newarr[0].product(newarr[i+1]).map {|x| x.flatten.join('')})
-    end
-    for i in 0..counter.size-1 do
-      newarr[0].insert(counter[i],to_i, ' and ')
-    end
-    return newarr[0].flatten
-  end
-
-  def self.expand_or(arr)
-    counter = Array.new
-    arr = arr.compact
-    newarr = Array.new
-    arr.each_with_index do |a,i|
-      newarr[i] = a.to_s.split(' or //')
-      newarr[i][1] = "//#{newarr[i][1]}" if newarr[i].size > 1
-      counter.push(i+1) if newarr[i].size > 1
-    end
-    for i in 0..newarr.size-2 do
-      newarr[0] = (newarr[0].product(newarr[i+1]).map {|x| x.flatten.join('')})
-    end
-    for i in 0..counter.size-1 do
-      newarr[0].insert(counter[i].to_i, ' or ')
-    end
-    return newarr[0].flatten
-  end
-
-  def self.evaluate_array(arr)
+  def self.evaluate_array(arr,toplevel = false)
     arr = arr.compact
     arr.each_with_index do |a,i|
-      puts 'AT'+ i.to_s + 'AND THIS' + arr.to_s
       case a
       when nil     then next
       when '(('
         targ = 0
         arr[(i+1)..arr.length].each_with_index do |b,j|
           if b == '))'
-            targ = j
+            targ = i+j+1
             break
           end
         end
-        temp = evaluate_array(arr[i+1..i+targ])
+        arr[i]=nil
+        arr[targ]=nil
+        temp = evaluate_array(arr[i+1..targ])
         for j in (0...temp.length) do
           arr[i+j] = temp[j];
         end
-        for j in (i+temp.length)..(i+targ) do
+        for j in (i+temp.length)..(targ) do
           arr[j] = nil
         end
-      when '))'    then arr[i]=nil; return arr
+      when '))'    then return arr
       else              next
       end
     end
@@ -156,8 +116,8 @@ class XPathSimplify
     arr = arr.compact
     arr.each_with_index do |a,i|
       case a
-      when '&&'    then arr = evaluate_and(arr,i)
-      when '||'    then arr = evaluate_or(arr,i)
+      when '&&'    then arr = evaluate_and(arr,i,toplevel)
+      when '||'    then arr = evaluate_or(arr,i,toplevel)
       else         next
       end
     end
@@ -179,15 +139,19 @@ class XPathSimplify
     return arr
   end
 
-  def self.evaluate_and(arr,i)
-    arr[i] = "#{arr[i-1]} and //*#{arr[i+1][3..-1]}"
+  def self.evaluate_and(arr,i,flag = false)
+    if flag then arr[i] = "#{arr[i-1]} and //*#{arr[i+1][3..-1]}"
+    else         arr[i] = "#{arr[i-1][0..-2]} and #{arr[i+1][4..-1]}"
+    end
     arr[i-1] = nil
     arr[i+1] = nil
     return arr
   end
 
-  def self.evaluate_or(arr,i)
-    arr[i] = "#{arr[i-1]} or //*#{arr[i+1][3..-1]}"
+  def self.evaluate_or(arr,i,flag = false)
+    if flag then arr[i] = "#{arr[i-1]} or //*#{arr[i+1][3..-1]}"
+    else         arr[i] = "#{arr[i-1][0..-2]} or #{arr[i+1][4..-1]}"
+    end
     arr[i-1] = nil
     arr[i+1] = nil
     return arr
