@@ -26,7 +26,7 @@ class XPathSimplify
     puts arr.to_s
     arr = evaluate_array(arr)
     puts arr.to_s
-    arr = expand_brackets(arr)
+    arr = expand_or(arr)
     puts arr.to_s
     puts '______'
     return arr.join('')
@@ -75,25 +75,40 @@ class XPathSimplify
     return arr.compact
   end
 
-  def self.expand_brackets(arr)
-    newarr = Array.new
+  def self.expand_and(arr)
+    counter = Array.new
     arr = arr.compact
+    newarr = Array.new
     arr.each_with_index do |a,i|
-      case a
-      when /.+ and \/\/.+/
-        sub = arr[i]
-        arr[i] = sub.gsub(' and //'," and #{arr[i-1]}//")
-        arr[i] = "#{arr[i-1]}#{arr[i]}"
-        arr[i-1] = nil
-      when /.+ or \/\/.+/
-        sub = arr[i]
-        arr[i] = sub.gsub(' or //'," or #{arr[i-1]}//")
-        arr[i] = "#{arr[i-1]}#{arr[i]}"
-        arr[i-1] = nil
-      else
-      end
+      newarr[i] = a.to_s.split(' and //')
+      newarr[i][1] = "//#{newarr[i][1]}" if newarr[i].size > 1
+      counter.push(i) if newarr[i].size > 1
     end
-    return arr
+    for i in 0..newarr.size-2 do
+      newarr[0] = (newarr[0].product(newarr[i+1]).map {|x| x.flatten.join('')})
+    end
+    for i in 0..counter.size-1 do
+      newarr[0].insert(counter[i],to_i, ' and ')
+    end
+    return newarr[0].flatten
+  end
+
+  def self.expand_or(arr)
+    counter = Array.new
+    arr = arr.compact
+    newarr = Array.new
+    arr.each_with_index do |a,i|
+      newarr[i] = a.to_s.split(' or //')
+      newarr[i][1] = "//#{newarr[i][1]}" if newarr[i].size > 1
+      counter.push(i+1) if newarr[i].size > 1
+    end
+    for i in 0..newarr.size-2 do
+      newarr[0] = (newarr[0].product(newarr[i+1]).map {|x| x.flatten.join('')})
+    end
+    for i in 0..counter.size-1 do
+      newarr[0].insert(counter[i].to_i, ' or ')
+    end
+    return newarr[0].flatten
   end
 
   def self.evaluate_array(arr)
@@ -151,7 +166,8 @@ class XPathSimplify
   end
 
   def self.evaluate_index(arr,i)
-    arr[i] = "[#{arr[i+1]}]"
+    arr[i] = "#{arr[i-1]}[#{arr[i+1]}]"
+    arr[i-1] = nil
     arr[i+1] = nil
     return arr
   end

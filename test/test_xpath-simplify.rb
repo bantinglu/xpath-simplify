@@ -2,7 +2,7 @@ require 'minitest/autorun'
 require 'xpath-simplify'
 
 class XPathTest < Minitest::Test
-=begin
+
   def test_id
     assert_equal "//*[@id='idname']",
                  XPathSimplify.simplify('#idname')
@@ -125,7 +125,7 @@ class XPathTest < Minitest::Test
     assert_equal "//*[contains(@class,'classname')]//*[@id='idname1'] or //*[contains(@class,'classname')]//*[@id='idname2']",
                  XPathSimplify.simplify('.classname (( #idname1 || #idname2 ))')
   end
-=end
+
   def test_advanced
     assert_equal "//*[contains(@class,'classname1')]//*[contains(text(),'Test This here')] or //*[contains(@class,'classname')][12]//*[contains(text(),'Test This here')]",
                  XPathSimplify.simplify('(( .classname1 || .classname -> 12 )) :: Test This here ::')
