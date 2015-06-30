@@ -88,24 +88,24 @@ class XPathTest < Minitest::Test
   end
 
   def test_and
-    assert_equal "//*[contains(@class,'classname1')] and //*[contains(@class,'classname2')]",
+    assert_equal "//*[contains(@class,'classname1')] + //*[contains(@class,'classname2')]",
                  XPathSimplify.simplify('.classname1 && .classname2')
-    assert_equal "//*[@id='idname1'] and //*[contains(@class,'classname1')]",
+    assert_equal "//*[@id='idname1'] + //*[contains(@class,'classname1')]",
                  XPathSimplify.simplify('#idname1 && .classname1')
-    assert_equal "//*[contains(text(),'Text Here')] and //*[contains(@class,'classname1')]",
+    assert_equal "//*[contains(text(),'Text Here')] + //*[contains(@class,'classname1')]",
                  XPathSimplify.simplify(':: Text Here :: && .classname1')
-    assert_equal "//*[contains(@class,'classname1')] and //*[contains(text(),'Text Here')]",
+    assert_equal "//*[contains(@class,'classname1')] + //*[contains(text(),'Text Here')]",
                  XPathSimplify.simplify('.classname1 && :: Text Here ::')
     end
 
   def test_or
-    assert_equal "//*[contains(@class,'classname1')] or //*[contains(@class,'classname2')]",
+    assert_equal "//*[contains(@class,'classname1')] | //*[contains(@class,'classname2')]",
                  XPathSimplify.simplify('.classname1 || .classname2')
-    assert_equal "//*[@id='idname1'] or //*[contains(@class,'classname1')]",
+    assert_equal "//*[@id='idname1'] | //*[contains(@class,'classname1')]",
                  XPathSimplify.simplify('#idname1 || .classname1')
-    assert_equal "//*[contains(text(),'Text Here')] or //*[contains(@class,'classname1')]",
+    assert_equal "//*[contains(text(),'Text Here')] | //*[contains(@class,'classname1')]",
                  XPathSimplify.simplify(':: Text Here :: || .classname1')
-    assert_equal "//*[contains(@class,'classname1')] or //*[contains(text(),'Text Here')]",
+    assert_equal "//*[contains(@class,'classname1')] | //*[contains(text(),'Text Here')]",
                  XPathSimplify.simplify('.classname1 || :: Text Here ::')
   end
 
@@ -118,7 +118,7 @@ class XPathTest < Minitest::Test
                  XPathSimplify.simplify('(( .classname )) (( #idname )) (( #idname2 ))')
     assert_equal "//*[contains(@class,'classname') and @id='idname']",
                  XPathSimplify.simplify('(( .classname && #idname ))')
-    assert_equal "//*[contains(@class,'classname')] and //*[@id='idname']",
+    assert_equal "//*[contains(@class,'classname')] + //*[@id='idname']",
                  XPathSimplify.simplify('(( .classname )) && (( #idname ))')
     assert_equal "//*[contains(@class,'classname')]//*[@id='idname1' and @id='idname2']",
                  XPathSimplify.simplify('.classname (( #idname1 && #idname2 ))')
@@ -129,6 +129,8 @@ class XPathTest < Minitest::Test
   def test_advanced
     assert_equal "//*[contains(@class,'classname1') or contains(@class,'classname2')][12]//*[contains(text(),'Test This here')]",
                  XPathSimplify.simplify('(( .classname1 || .classname2 )) -> 12 :: Test This here ::')
+    assert_equal "//*[contains(@class,'classname1') or contains(@class,'classname2')][12]//*[contains(text(),'There is a lot of text here')]",
+                 XPathSimplify.simplify('(( .classname1 || .classname2 )) -> 12 :: There is a lot of text here ::')
   end
 
 end

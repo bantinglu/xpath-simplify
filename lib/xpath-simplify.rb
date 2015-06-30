@@ -140,7 +140,7 @@ class XPathSimplify
   end
 
   def self.evaluate_and(arr,i,flag = false)
-    if flag then arr[i] = "#{arr[i-1]} and //*#{arr[i+1][3..-1]}"
+    if flag then arr[i] = "#{arr[i-1]} + //*#{arr[i+1][3..-1]}"
     else         arr[i] = "#{arr[i-1][0..-2]} and #{arr[i+1][4..-1]}"
     end
     arr[i-1] = nil
@@ -149,7 +149,7 @@ class XPathSimplify
   end
 
   def self.evaluate_or(arr,i,flag = false)
-    if flag then arr[i] = "#{arr[i-1]} or //*#{arr[i+1][3..-1]}"
+    if flag then arr[i] = "#{arr[i-1]} | //*#{arr[i+1][3..-1]}"
     else         arr[i] = "#{arr[i-1][0..-2]} or #{arr[i+1][4..-1]}"
     end
     arr[i-1] = nil

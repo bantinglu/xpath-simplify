@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'xpath-simplify'
-  s.version     = '0.0.5'
+  s.version     = '0.0.6'
   s.date        = '2016-06-30'
   s.summary     = "X-Path Simplifier"
   s.description = "This gem helps streamline the creation of X-Paths!"
