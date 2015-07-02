@@ -126,7 +126,11 @@ class XPathSimplify
   end
 
   def self.evaluate_index(arr,i)
-    arr[i] = "#{arr[i-1]}[#{arr[i+1]}]"
+    case arr[i+1].to_s
+    when 'enabled'  then arr[i] = "#{arr[i-1]}[not (@disabled)]"
+    when 'disabled' then arr[i] = "#{arr[i-1]}[(@disabled)]"
+    else                 arr[i] = "#{arr[i-1]}[#{arr[i+1]}]"
+    end
     arr[i-1] = nil
     arr[i+1] = nil
     return arr

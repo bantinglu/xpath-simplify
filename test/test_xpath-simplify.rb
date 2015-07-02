@@ -48,6 +48,10 @@ class XPathTest < Minitest::Test
                  XPathSimplify.simplify('ul -> 6')
     assert_equal "//*[contains(@class,'classname')][12]",
                  XPathSimplify.simplify('.classname -> 12')
+    assert_equal "//*[contains(@class,'classname')][(@disabled)]",
+                 XPathSimplify.simplify('.classname -> disabled')
+    assert_equal "//*[contains(@class,'classname')][not (@disabled)]",
+                 XPathSimplify.simplify('.classname -> enabled')
   end
 
 
