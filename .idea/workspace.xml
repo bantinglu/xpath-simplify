@@ -21,20 +21,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="xpath-simplify.rb" pinned="false" current-in-tab="true">
+      <file leaf-file-name="xpath-simplify.rb" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/xpath-simplify.rb">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.2511628">
-              <caret line="18" column="28" selection-start-line="18" selection-start-column="28" selection-end-line="18" selection-end-column="28" />
+            <state vertical-scroll-proportion="-1.6666666">
+              <caret line="3" column="17" selection-start-line="3" selection-start-column="17" selection-end-line="4" selection-end-column="13" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="xpath-simplify.gemspec" pinned="false" current-in-tab="false">
+      <file leaf-file-name="xpath-simplify.gemspec" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/xpath-simplify.gemspec">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
+            <state vertical-scroll-proportion="0.027223231">
               <caret line="2" column="24" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
               <folding />
             </state>
@@ -69,8 +69,8 @@
         <option value="$PROJECT_DIR$/simplepath.gemspec" />
         <option value="$PROJECT_DIR$/Rakefile" />
         <option value="$PROJECT_DIR$/test/test_xpath-simplify.rb" />
-        <option value="$PROJECT_DIR$/xpath-simplify.gemspec" />
         <option value="$PROJECT_DIR$/lib/xpath-simplify.rb" />
+        <option value="$PROJECT_DIR$/xpath-simplify.gemspec" />
       </list>
     </option>
   </component>
@@ -506,18 +506,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/xpath-simplify.gemspec">
+    <entry file="file://$PROJECT_DIR$/lib/xpath-simplify.rb">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="2" column="24" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
+        <state vertical-scroll-proportion="-1.6666666">
+          <caret line="3" column="17" selection-start-line="3" selection-start-column="17" selection-end-line="4" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/xpath-simplify.rb">
+    <entry file="file://$PROJECT_DIR$/xpath-simplify.gemspec">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2511628">
-          <caret line="18" column="28" selection-start-line="18" selection-start-column="28" selection-end-line="18" selection-end-column="28" />
+        <state vertical-scroll-proportion="0.027223231">
+          <caret line="2" column="24" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
           <folding />
         </state>
       </provider>
