@@ -19,7 +19,7 @@ class XPathSimplify
     arr = combine_words(arr)
     arr.each_with_index do |a,i|
       case a
-      when 'li', 'ul', 'a', 'span', 'button', 'input', 'label', 'textarea', 'tr', 'td', 'div' then arr[i] = "//#{arr[i]}";
+      when 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'a', 'span', 'button', 'input', 'label', 'textarea', 'tr', 'td', 'div' then arr[i] = "//#{arr[i]}";
       else                                                                       next
       end
     end
@@ -36,7 +36,7 @@ class XPathSimplify
     end
     case arr[0]
     when '((', '))', '->', '>>', '&&', '||', '::', /^#.+/, /^\..+/        then return false
-    when 'li', 'ul', 'a', 'span', 'button', 'input', 'label', 'textarea', 'tr', 'td', 'div' then return false
+    when 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ul', 'a', 'span', 'button', 'input', 'label', 'textarea', 'tr', 'td', 'div' then return false
     when /\/[^\/].+/, /^http.*/, /^mailto.*/                              then return false
     else                                                                       return true
     end
