@@ -1,2 +1,4 @@
 /xpath-simplify-*
 .idea/
+xpath-simplify.gemspec
+.DS_Store
